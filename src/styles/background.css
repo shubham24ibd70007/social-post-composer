@@ -1,0 +1,37 @@
+.bg-wrapper{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:-5;
+}
+
+.blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(120px);
+    opacity:.45;
+}
+
+.blob1{
+    width:600px;
+    height:600px;
+    background:#2563eb;
+    top:-150px;
+    left:-150px;
+}
+
+.blob2{
+    width:700px;
+    height:700px;
+    background:#9333ea;
+    right:-180px;
+    bottom:-180px;
+}
+
+.blob3{
+    width:500px;
+    height:500px;
+    background:#06b6d4;
+    top:40%;
+    left:40%;
+}

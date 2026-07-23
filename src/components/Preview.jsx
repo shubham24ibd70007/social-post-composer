@@ -1,68 +1,63 @@
+import React, { memo } from "react";
 import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
 import {
   FiHeart,
   FiMessageCircle,
   FiSend,
-  FiBookmark
 } from "react-icons/fi";
+
+import { selectCurrentPost } from "../redux/selectors/postSelectors";
 
 import "../styles/preview.css";
 
-function Preview({ platform, text, image }) {
+function Preview() {
+  const currentPost = useSelector(selectCurrentPost);
+
   return (
     <motion.div
       className="preview glass"
-      initial={{ opacity: 0, x: 80 }}
+      initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.7 }}
+      transition={{ duration: 0.5 }}
     >
       <h2>Live Preview</h2>
 
       <div className="phone">
-
         <div className="phoneHeader">
-
           <div className="avatar"></div>
 
           <div>
-
-            <h4>your_username</h4>
-
-            <small>{platform}</small>
-
+            <h4>Username</h4>
+            <span>{currentPost.platform}</span>
           </div>
-
         </div>
 
-        <p className="previewText">
-          {text || "Start typing to preview your post..."}
-        </p>
+        <div className="phoneBody">
+          {currentPost.text ? (
+            <p>{currentPost.text}</p>
+          ) : (
+            <p className="placeholder">
+              Start typing to preview your post...
+            </p>
+          )}
 
-        {image && (
-          <img
-            src={image}
-            className="postImage"
-            alt=""
-          />
-        )}
+          {currentPost.image && (
+            <img
+              src={currentPost.image}
+              alt="Preview"
+            />
+          )}
+        </div>
 
-        <div className="postActions">
-
+        <div className="phoneFooter">
           <FiHeart />
-
           <FiMessageCircle />
-
           <FiSend />
-
-          <FiBookmark
-            style={{ marginLeft: "auto" }}
-          />
-
         </div>
-
       </div>
     </motion.div>
   );
 }
 
-export default Preview;
+export default memo(Preview);

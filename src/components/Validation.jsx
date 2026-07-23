@@ -1,116 +1,102 @@
+import React, { memo, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
 import {
   FiCheckCircle,
   FiAlertCircle,
-  FiImage,
-  FiSend,
 } from "react-icons/fi";
+
+import { selectCurrentPost } from "../redux/selectors/postSelectors";
 
 import "../styles/validation.css";
 
-function Validation({ platform, text, image }) {
-  const limits = {
-    Instagram: 2200,
-    X: 280,
-    LinkedIn: 3000,
-    Facebook: 63206,
-  };
+function Validation() {
+  const currentPost = useSelector(selectCurrentPost);
 
-  const max = limits[platform];
-  const used = text.length;
-  const percent = Math.min((used / max) * 100, 100);
+  const limits = useSelector(
+    (state) => state.platform.limits
+  );
 
-  const valid = used <= max;
+  const platform = useSelector(
+    (state) => state.platform.currentPlatform
+  );
+
+  const limit = useMemo(() => {
+    return limits[platform];
+  }, [limits, platform]);
+
+  const used = useMemo(() => {
+    return currentPost.text.length;
+  }, [currentPost.text]);
+
+  const remaining = useMemo(() => {
+    return limit - used;
+  }, [limit, used]);
+
+  const percentage = useMemo(() => {
+    return Math.min((used / limit) * 100, 100);
+  }, [used, limit]);
+
+  const valid = useMemo(() => {
+    return remaining >= 0;
+  }, [remaining]);
 
   return (
     <motion.div
       className="validation glass"
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: .4 }}
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5 }}
     >
-      <h2>Status</h2>
+      <h2>Validation</h2>
 
-      <div className="statusCard">
-
-        <div className="statusHead">
-          <FiCheckCircle />
-          Character Count
-        </div>
-
-        <h1>{used}/{max}</h1>
-
-        <div className="progressBar">
-          <div
-            className="progressFill"
-            style={{ width: `${percent}%` }}
-          ></div>
-        </div>
-
+      <div className="progressBar">
+        <div
+          className="progressFill"
+          style={{
+            width: `${percentage}%`,
+          }}
+        />
       </div>
 
-      <div className="statusCard">
-
-        <div className="statusHead">
-
-          {valid ? (
-            <FiCheckCircle />
-          ) : (
-            <FiAlertCircle />
-          )}
-
-          Validation
-
+      <div className="stats">
+        <div>
+          <h4>Platform</h4>
+          <p>{platform}</p>
         </div>
 
-        <p>
-
-          {valid
-            ? "Ready for publishing"
-            : "Character limit exceeded"}
-
-        </p>
-
-      </div>
-
-      <div className="statusCard">
-
-        <div className="statusHead">
-
-          <FiImage />
-
-          Upload
-
+        <div>
+          <h4>Characters</h4>
+          <p>{used}</p>
         </div>
 
-        <p>
-
-          {image
-            ? "Image attached"
-            : "No image selected"}
-
-        </p>
-
+        <div>
+          <h4>Remaining</h4>
+          <p>{remaining}</p>
+        </div>
       </div>
 
-      <motion.button
-
-        whileHover={{ scale: 1.03 }}
-
-        whileTap={{ scale: .95 }}
-
-        className="publishNow"
-
+      <div
+        className={
+          valid
+            ? "status success"
+            : "status error"
+        }
       >
-
-        <FiSend />
-
-        Publish Now
-
-      </motion.button>
-
+        {valid ? (
+          <>
+            <FiCheckCircle />
+            Ready to Publish
+          </>
+        ) : (
+          <>
+            <FiAlertCircle />
+            Character limit exceeded
+          </>
+        )}
+      </div>
     </motion.div>
   );
 }
 
-export default Validation;
+export default memo(Validation);

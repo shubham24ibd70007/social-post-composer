@@ -1,60 +1,74 @@
-import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import Composer from "./components/Composer";
-import Preview from "./components/Preview";
-import Validation from "./components/Validation";
 import Background from "./components/Background";
 import MouseGlow from "./components/MouseGlow";
+import Preview from "./components/Preview";
+import Validation from "./components/Validation";
+
+import Dashboard from "./pages/Dashboard";
+import CreatePost from "./pages/CreatePost";
+import Drafts from "./pages/Drafts";
+import Scheduled from "./pages/Scheduled";
+import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
 
 import "./styles/dashboard.css";
 
 function App() {
-  const [platform, setPlatform] = useState("Instagram");
-  const [text, setText] = useState("");
-  const [image, setImage] = useState(null);
-
   return (
     <>
-      {/* Animated Background */}
       <Background />
-
-      {/* Mouse Glow */}
       <MouseGlow />
 
-      {/* Top Navigation */}
       <Navbar />
 
-      {/* Main Dashboard */}
       <div className="dashboard">
 
-        {/* Sidebar */}
         <Sidebar />
 
-        {/* Composer */}
-        <Composer
-          platform={platform}
-          setPlatform={setPlatform}
-          text={text}
-          setText={setText}
-          image={image}
-          setImage={setImage}
-        />
+        <div className="mainContent">
 
-        {/* Right Side */}
-        <div className="right-panel">
-          <Preview
-            platform={platform}
-            text={text}
-            image={image}
-          />
+          <Routes>
 
-          <Validation
-            platform={platform}
-            text={text}
-            image={image}
-          />
+            <Route path="/" element={<Dashboard />} />
+
+            <Route
+              path="/create-post"
+              element={<CreatePost />}
+            />
+
+            <Route
+              path="/drafts"
+              element={<Drafts />}
+            />
+
+            <Route
+              path="/scheduled"
+              element={<Scheduled />}
+            />
+
+            <Route
+              path="/analytics"
+              element={<Analytics />}
+            />
+
+            <Route
+              path="/settings"
+              element={<Settings />}
+            />
+
+          </Routes>
+
+        </div>
+
+        <div className="rightPanel">
+
+          <Preview />
+
+          <Validation />
+
         </div>
 
       </div>

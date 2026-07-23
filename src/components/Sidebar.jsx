@@ -3,85 +3,145 @@ import {
   FiHome,
   FiEdit3,
   FiCalendar,
+  FiClock,
   FiBarChart2,
   FiSettings,
-  FiClock,
 } from "react-icons/fi";
+
+import { NavLink } from "react-router-dom";
 
 import "../styles/sidebar.css";
 
-const menu = [
-  {
-    icon: <FiHome />,
-    title: "Dashboard",
-  },
-  {
-    icon: <FiEdit3 />,
-    title: "Create Post",
-  },
-  {
-    icon: <FiCalendar />,
-    title: "Scheduled",
-  },
-  {
-    icon: <FiClock />,
-    title: "Drafts",
-  },
-  {
-    icon: <FiBarChart2 />,
-    title: "Analytics",
-  },
-  {
-    icon: <FiSettings />,
-    title: "Settings",
-  },
+const menu=[
+
+{
+title:"Dashboard",
+icon:<FiHome/>,
+path:"/"
+},
+
+{
+title:"Create Post",
+icon:<FiEdit3/>,
+path:"/create-post"
+},
+
+{
+title:"Scheduled",
+icon:<FiCalendar/>,
+path:"/scheduled"
+},
+
+{
+title:"Drafts",
+icon:<FiClock/>,
+path:"/drafts"
+},
+
+{
+title:"Analytics",
+icon:<FiBarChart2/>,
+path:"/analytics"
+},
+
+{
+title:"Settings",
+icon:<FiSettings/>,
+path:"/settings"
+}
+
 ];
 
-function Sidebar() {
-  return (
-    <motion.aside
-      className="sidebar glass"
-      initial={{ x: -80, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ delay: 0.2 }}
-    >
-      <div className="sidebarTitle">
-        Workspace
-      </div>
+function Sidebar(){
 
-      <div className="menu">
-        {menu.map((item, index) => (
-          <motion.div
-            key={index}
-            className={`menuItem ${
-              index === 1 ? "activeItem" : ""
-            }`}
-            whileHover={{
-              x: 8,
-              scale: 1.03,
-            }}
-            whileTap={{
-              scale: 0.96,
-            }}
-          >
-            <span>{item.icon}</span>
+return(
 
-            <p>{item.title}</p>
-          </motion.div>
-        ))}
-      </div>
+<motion.div
 
-      <div className="storage glass">
-        <h4>Storage</h4>
+className="sidebar glass"
 
-        <div className="progress">
-          <div className="progressFill"></div>
-        </div>
+initial={{x:-80}}
 
-        <small>2.4 GB of 10 GB Used</small>
-      </div>
-    </motion.aside>
-  );
+animate={{x:0}}
+
+>
+
+<h1 className="sidebarTitle">
+
+Workspace
+
+</h1>
+
+<div className="menu">
+
+{menu.map((item)=>(
+
+<NavLink
+
+key={item.path}
+
+to={item.path}
+
+className={({isActive})=>
+
+isActive
+
+?
+
+"menuItem activeItem"
+
+:
+
+"menuItem"
+
+}
+
+>
+
+<span>
+
+{item.icon}
+
+</span>
+
+<p>
+
+{item.title}
+
+</p>
+
+</NavLink>
+
+))}
+
+</div>
+
+<div className="storage glass">
+
+<h4>
+
+Storage
+
+</h4>
+
+<div className="progress">
+
+<div className="progressFill"/>
+
+</div>
+
+<small>
+
+2.4 GB of 10 GB Used
+
+</small>
+
+</div>
+
+</motion.div>
+
+);
+
 }
 
 export default Sidebar;

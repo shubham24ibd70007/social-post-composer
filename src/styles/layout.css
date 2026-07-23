@@ -1,0 +1,384 @@
+/* ===========================
+   DASHBOARD LAYOUT
+=========================== */
+
+.dashboard{
+    display:grid;
+    grid-template-columns:280px 1fr 380px;
+    gap:28px;
+    padding:25px;
+    min-height:calc(100vh - 120px);
+}
+
+/* ===========================
+   SIDEBAR
+=========================== */
+
+.sidebar{
+
+    height:calc(100vh - 150px);
+
+    padding:28px;
+
+    position:sticky;
+
+    top:25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.sidebar h2{
+
+    font-size:20px;
+
+    margin-bottom:28px;
+
+}
+
+.sidebar nav{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.sidebar nav a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:16px 18px;
+
+    border-radius:18px;
+
+    color:rgba(255,255,255,.75);
+
+    transition:.35s;
+
+    font-weight:500;
+
+}
+
+.sidebar nav a svg{
+
+    font-size:22px;
+
+}
+
+.sidebar nav a:hover{
+
+    background:rgba(255,255,255,.08);
+
+    color:white;
+
+}
+
+.sidebar nav .active{
+
+    background:linear-gradient(
+        135deg,
+        #5B7CFA,
+        #7C3AED
+    );
+
+    color:white;
+
+    box-shadow:
+        0 18px 35px rgba(91,124,250,.35);
+
+}
+
+.storage{
+
+    margin-top:auto;
+
+    padding:20px;
+
+}
+
+.storage h4{
+
+    margin-bottom:12px;
+
+}
+
+.storage-bar{
+
+    width:100%;
+
+    height:10px;
+
+    background:rgba(255,255,255,.08);
+
+    border-radius:50px;
+
+    overflow:hidden;
+
+    margin:16px 0;
+
+}
+
+.storage-fill{
+
+    width:68%;
+
+    height:100%;
+
+    background:linear-gradient(
+        90deg,
+        #5B7CFA,
+        #7C3AED
+    );
+
+}
+
+/* ===========================
+   NAVBAR
+=========================== */
+
+.navbar{
+
+    margin:22px;
+
+    padding:18px 30px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.logo{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+}
+
+.logo-box{
+
+    width:58px;
+
+    height:58px;
+
+    border-radius:18px;
+
+    background:linear-gradient(
+        135deg,
+        #5B7CFA,
+        #7C3AED
+    );
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:30px;
+
+    font-weight:700;
+
+    color:white;
+
+}
+
+.logo h2{
+
+    font-size:22px;
+
+}
+
+.logo p{
+
+    margin-top:2px;
+
+    font-size:14px;
+
+}
+
+/* ===========================
+   SEARCH
+=========================== */
+
+.search{
+
+    width:470px;
+
+    position:relative;
+
+}
+
+.search svg{
+
+    position:absolute;
+
+    left:18px;
+
+    top:17px;
+
+    color:rgba(255,255,255,.55);
+
+    font-size:20px;
+
+}
+
+.search input{
+
+    padding-left:52px;
+
+}
+
+/* ===========================
+   NAV ICONS
+=========================== */
+
+.nav-icons{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+}
+
+.nav-btn{
+
+    width:54px;
+
+    height:54px;
+
+    border-radius:18px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:rgba(255,255,255,.07);
+
+    color:white;
+
+    transition:.35s;
+
+    font-size:22px;
+
+}
+
+.nav-btn:hover{
+
+    transform:translateY(-3px);
+
+    background:rgba(255,255,255,.13);
+
+}
+
+.profile{
+
+    width:58px;
+
+    height:58px;
+
+    border-radius:18px;
+
+    background:linear-gradient(
+        135deg,
+        #5B7CFA,
+        #7C3AED
+    );
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:24px;
+
+    color:white;
+
+}
+
+/* ===========================
+   CONTENT
+=========================== */
+
+.main-content{
+
+    min-width:0;
+
+}
+
+.right-panel{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:22px;
+
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:1450px){
+
+.dashboard{
+
+grid-template-columns:250px 1fr;
+
+}
+
+.right-panel{
+
+display:none;
+
+}
+
+}
+
+@media(max-width:950px){
+
+.dashboard{
+
+grid-template-columns:1fr;
+
+}
+
+.sidebar{
+
+display:none;
+
+}
+
+.search{
+
+display:none;
+
+}
+
+.navbar{
+
+padding:18px;
+
+}
+
+}

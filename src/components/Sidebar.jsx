@@ -9,139 +9,101 @@ import {
 } from "react-icons/fi";
 
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+import { hasPermission } from "../utils/permissions";
 
 import "../styles/sidebar.css";
 
-const menu=[
+function Sidebar() {
+  const role = useSelector(
+    (state) => state.auth.user?.role
+  );
 
-{
-title:"Dashboard",
-icon:<FiHome/>,
-path:"/"
-},
+  const menu = [
+    {
+      title: "Dashboard",
+      icon: <FiHome />,
+      path: "/",
+      permission: "dashboard",
+    },
+    {
+      title: "Create Post",
+      icon: <FiEdit3 />,
+      path: "/create-post",
+      permission: "create",
+    },
+    {
+      title: "Scheduled",
+      icon: <FiCalendar />,
+      path: "/scheduled",
+      permission: "scheduled",
+    },
+    {
+      title: "Drafts",
+      icon: <FiClock />,
+      path: "/drafts",
+      permission: "drafts",
+    },
+    {
+      title: "Analytics",
+      icon: <FiBarChart2 />,
+      path: "/analytics",
+      permission: "analytics",
+    },
+    {
+      title: "Settings",
+      icon: <FiSettings />,
+      path: "/settings",
+      permission: "settings",
+    },
+  ];
 
-{
-title:"Create Post",
-icon:<FiEdit3/>,
-path:"/create-post"
-},
+  return (
+    <motion.div
+      className="sidebar glass"
+      initial={{ x: -80 }}
+      animate={{ x: 0 }}
+    >
+      <h1 className="sidebarTitle">
+        Workspace
+      </h1>
 
-{
-title:"Scheduled",
-icon:<FiCalendar/>,
-path:"/scheduled"
-},
+      <div className="menu">
+        {menu
+          .filter((item) =>
+            hasPermission(role, item.permission)
+          )
+          .map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                isActive
+                  ? "menuItem activeItem"
+                  : "menuItem"
+              }
+            >
+              <span>{item.icon}</span>
 
-{
-title:"Drafts",
-icon:<FiClock/>,
-path:"/drafts"
-},
+              <p>{item.title}</p>
+            </NavLink>
+          ))}
+      </div>
 
-{
-title:"Analytics",
-icon:<FiBarChart2/>,
-path:"/analytics"
-},
+      <div className="storage glass">
+        <h4>Storage</h4>
 
-{
-title:"Settings",
-icon:<FiSettings/>,
-path:"/settings"
-}
+        <div className="progress">
+          <div className="progressFill" />
+        </div>
 
-];
-
-function Sidebar(){
-
-return(
-
-<motion.div
-
-className="sidebar glass"
-
-initial={{x:-80}}
-
-animate={{x:0}}
-
->
-
-<h1 className="sidebarTitle">
-
-Workspace
-
-</h1>
-
-<div className="menu">
-
-{menu.map((item)=>(
-
-<NavLink
-
-key={item.path}
-
-to={item.path}
-
-className={({isActive})=>
-
-isActive
-
-?
-
-"menuItem activeItem"
-
-:
-
-"menuItem"
-
-}
-
->
-
-<span>
-
-{item.icon}
-
-</span>
-
-<p>
-
-{item.title}
-
-</p>
-
-</NavLink>
-
-))}
-
-</div>
-
-<div className="storage glass">
-
-<h4>
-
-Storage
-
-</h4>
-
-<div className="progress">
-
-<div className="progressFill"/>
-
-</div>
-
-<small>
-
-2.4 GB of 10 GB Used
-
-</small>
-
-</div>
-
-</motion.div>
-
-);
-
+        <small>
+          2.4 GB of 10 GB Used
+        </small>
+      </div>
+    </motion.div>
+  );
 }
 
 export default Sidebar;

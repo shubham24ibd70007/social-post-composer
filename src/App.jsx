@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
@@ -17,15 +18,30 @@ import Drafts from "./pages/Drafts";
 import Scheduled from "./pages/Scheduled";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import Storage from "./pages/Storage";
 import Login from "./pages/Login";
 import Unauthorized from "./pages/Unauthorized";
+import { fetchDraftsAsync } from "./redux/slices/postSlice";
 
 import "./styles/dashboard.css";
 
 function App() {
+  const dispatch = useDispatch();
   const isAuthenticated = useSelector(
     (state) => state.auth.isAuthenticated
   );
+  const darkMode = useSelector((state) => state.ui.darkMode);
+
+  useEffect(() => {
+    document.body.classList.toggle("light-theme", !darkMode);
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchDraftsAsync());
+    }
+  }, [dispatch, isAuthenticated]);
 
   if (!isAuthenticated) {
     return (
@@ -108,6 +124,15 @@ function App() {
                 <RoleProtectedRoute permission="settings">
                   <Settings />
                 </RoleProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/storage"
+              element={
+                <ProtectedRoute>
+                  <Storage />
+                </ProtectedRoute>
               }
             />
 

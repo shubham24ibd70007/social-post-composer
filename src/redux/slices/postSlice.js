@@ -4,266 +4,150 @@ import {
   createEntityAdapter,
 } from "@reduxjs/toolkit";
 
-import { supabase } from "../../utils/supabase";
-
-
-// ========================================
-// ENTITY ADAPTER
-// ========================================
+import { postsApi } from "../../services/postsApi";
 
 const draftsAdapter = createEntityAdapter({
   selectId: (draft) => draft.id,
   sortComparer: (a, b) => b.id - a.id,
 });
 
+const toDraft = (post) => ({
+  id: post.id,
+  platform: post.platform,
+  text: post.content || "",
+  image: "",
+  schedule: post.scheduledTime || "",
+  createdAt: post.createdAt || "",
+});
 
-// ========================================
-// FETCH POSTS FROM SUPABASE
-// ========================================
+const toApiPost = (post) => ({
+  platform: post.platform,
+  content: post.text,
+  scheduledTime: post.schedule || null,
+});
 
 export const fetchDraftsAsync = createAsyncThunk(
   "posts/fetchDraftsAsync",
   async (_, { rejectWithValue }) => {
-    const { data, error } = await supabase
-      .from("posts")
-      .select("*")
-      .eq("status", "draft")
-      .order("created_at", {
-        ascending: false,
-      });
-
-    if (error) {
+    try {
+      return (await postsApi.getAll()).map(toDraft);
+    } catch (error) {
       return rejectWithValue(error.message);
     }
-
-    return data.map((post) => ({
-      id: post.id,
-      platform: post.platform,
-      text: post.content || "",
-      image: post.image_url || "",
-      schedule: post.schedule || "",
-      createdAt: post.created_at,
-    }));
   }
 );
-
-
-// ========================================
-// SAVE DRAFT TO SUPABASE
-// ========================================
 
 export const saveDraftAsync = createAsyncThunk(
   "posts/saveDraftAsync",
   async (_, { getState, rejectWithValue }) => {
-    const state = getState();
-
-    const post = state.posts.currentPost;
-
-    const { data, error } = await supabase
-      .from("posts")
-      .insert({
-        platform: post.platform,
-        content: post.text,
-        image_url: post.image || null,
-        schedule: post.schedule || null,
-        status: "draft",
-      })
-      .select()
-      .single();
-
-    if (error) {
+    try {
+      const post = getState().posts.currentPost;
+      return toDraft(await postsApi.create(toApiPost(post)));
+    } catch (error) {
       return rejectWithValue(error.message);
     }
-
-    return {
-      id: data.id,
-      platform: data.platform,
-      text: data.content || "",
-      image: data.image_url || "",
-      schedule: data.schedule || "",
-      createdAt: data.created_at,
-    };
   }
 );
 
+export const updateDraftAsync = createAsyncThunk(
+  "posts/updateDraftAsync",
+  async ({ id, post }, { rejectWithValue }) => {
+    try {
+      return toDraft(await postsApi.update(id, toApiPost(post)));
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
-// ========================================
-// INITIAL STATE
-// ========================================
+export const deleteDraftAsync = createAsyncThunk(
+  "posts/deleteDraftAsync",
+  async (id, { rejectWithValue }) => {
+    try {
+      await postsApi.remove(id);
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const emptyPost = {
+  id: null,
+  platform: "Instagram",
+  text: "",
+  image: "",
+  schedule: "",
+};
 
 const initialState = draftsAdapter.getInitialState({
-  currentPost: {
-    id: null,
-    platform: "Instagram",
-    text: "",
-    image: "",
-    schedule: "",
-  },
-
+  currentPost: emptyPost,
   publishedPosts: [],
-
   loading: false,
-
   error: null,
 });
 
-
-// ========================================
-// SLICE
-// ========================================
-
 const postSlice = createSlice({
   name: "posts",
-
   initialState,
-
   reducers: {
     updatePost(state, action) {
-      state.currentPost = {
-        ...state.currentPost,
-        ...action.payload,
-      };
+      state.currentPost = { ...state.currentPost, ...action.payload };
     },
-
-
     clearPost(state) {
-      state.currentPost = {
-        id: null,
-        platform: "Instagram",
-        text: "",
-        image: "",
-        schedule: "",
-      };
+      state.currentPost = { ...emptyPost };
     },
-
-
-    deleteDraft: draftsAdapter.removeOne,
-
-
-    updateDraft: draftsAdapter.updateOne,
-
-
     publishPost(state) {
       state.publishedPosts.push({
+        ...state.currentPost,
         id: Date.now(),
-        platform: state.currentPost.platform,
-        text: state.currentPost.text,
-        image: state.currentPost.image,
-        schedule: state.currentPost.schedule,
         createdAt: new Date().toLocaleString(),
       });
-
-      state.currentPost = {
-        id: null,
-        platform: "Instagram",
-        text: "",
-        image: "",
-        schedule: "",
-      };
+      state.currentPost = { ...emptyPost };
     },
   },
-
-
-  // ========================================
-  // ASYNC REDUCERS
-  // ========================================
-
   extraReducers: (builder) => {
     builder
-
-      // FETCH DRAFTS
-
       .addCase(fetchDraftsAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
-      .addCase(
-        fetchDraftsAsync.fulfilled,
-        (state, action) => {
-          state.loading = false;
-
-          draftsAdapter.setAll(
-            state,
-            action.payload
-          );
-        }
-      )
-
-      .addCase(
-        fetchDraftsAsync.rejected,
-        (state, action) => {
-          state.loading = false;
-
-          state.error =
-            action.payload ||
-            "Failed to fetch drafts.";
-        }
-      )
-
-
-      // SAVE DRAFT
-
+      .addCase(fetchDraftsAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        draftsAdapter.setAll(state, action.payload);
+      })
+      .addCase(fetchDraftsAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to load posts.";
+      })
       .addCase(saveDraftAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
-      .addCase(
-        saveDraftAsync.fulfilled,
+      .addCase(saveDraftAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        draftsAdapter.addOne(state, action.payload);
+        state.currentPost = { ...emptyPost };
+      })
+      .addCase(updateDraftAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        draftsAdapter.upsertOne(state, action.payload);
+        state.currentPost = { ...emptyPost };
+      })
+      .addCase(deleteDraftAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        draftsAdapter.removeOne(state, action.payload);
+      })
+      .addMatcher(
+        (action) => action.type.endsWith("/rejected") && action.type.startsWith("posts/"),
         (state, action) => {
           state.loading = false;
-
-          draftsAdapter.addOne(
-            state,
-            action.payload
-          );
-
-          state.currentPost = {
-            id: null,
-            platform: "Instagram",
-            text: "",
-            image: "",
-            schedule: "",
-          };
-        }
-      )
-
-      .addCase(
-        saveDraftAsync.rejected,
-        (state, action) => {
-          state.loading = false;
-
-          state.error =
-            action.payload ||
-            "Failed to save draft.";
+          state.error = action.payload || "Unable to save changes.";
         }
       );
   },
 });
 
-
-// ========================================
-// SELECTORS
-// ========================================
-
-export const draftsSelectors =
-  draftsAdapter.getSelectors(
-    (state) => state.posts
-  );
-
-
-// ========================================
-// ACTIONS
-// ========================================
-
-export const {
-  updatePost,
-  clearPost,
-  deleteDraft,
-  updateDraft,
-  publishPost,
-} = postSlice.actions;
-
-
+export const draftsSelectors = draftsAdapter.getSelectors((state) => state.posts);
+export const { updatePost, clearPost, publishPost } = postSlice.actions;
 export default postSlice.reducer;

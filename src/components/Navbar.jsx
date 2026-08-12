@@ -3,13 +3,16 @@ import {
   FiBell,
   FiSearch,
   FiMoon,
+  FiSun,
   FiLogOut,
 } from "react-icons/fi";
 import { FaUserCircle } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import { logout } from "../redux/slices/authSlice";
+import { toggleDarkMode } from "../redux/slices/uiSlice";
 
 import "../styles/navbar.css";
 
@@ -18,10 +21,18 @@ function Navbar() {
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth.user);
+  const darkMode = useSelector((state) => state.ui.darkMode);
+  const [search, setSearch] = useState("");
 
   function handleLogout() {
     dispatch(logout());
     navigate("/login");
+  }
+
+  function handleSearch(event) {
+    event.preventDefault();
+    const query = search.trim();
+    navigate(query ? `/drafts?q=${encodeURIComponent(query)}` : "/drafts");
   }
 
   function getRoleColor(role) {
@@ -56,14 +67,17 @@ function Navbar() {
         </div>
       </div>
 
-      <div className="searchBox">
+      <form className="searchBox" onSubmit={handleSearch} role="search">
         <FiSearch />
 
         <input
           type="text"
-          placeholder="Search..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search drafts..."
+          aria-label="Search drafts by content or platform"
         />
-      </div>
+      </form>
 
       <div className="navActions">
         <motion.button
@@ -76,8 +90,11 @@ function Navbar() {
         <motion.button
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
+          type="button"
+          aria-label={`Switch to ${darkMode ? "light" : "dark"} theme`}
+          onClick={() => dispatch(toggleDarkMode())}
         >
-          <FiMoon />
+          {darkMode ? <FiMoon /> : <FiSun />}
         </motion.button>
 
         <motion.div

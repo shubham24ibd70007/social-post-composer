@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import toast from "react-hot-toast";
 
 import {
-  deleteDraft,
+  deleteDraftAsync,
   updatePost,
 } from "../redux/slices/postSlice";
 
@@ -15,12 +15,23 @@ import { selectDrafts } from "../redux/selectors/postSelectors";
 function Drafts() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const drafts = useSelector(selectDrafts);
+  const query = searchParams.get("q")?.trim().toLowerCase() || "";
+  const visibleDrafts = query
+    ? drafts.filter((draft) =>
+        `${draft.platform} ${draft.text}`.toLowerCase().includes(query)
+      )
+    : drafts;
 
-  const handleDelete = (id) => {
-    dispatch(deleteDraft(id));
-    toast.success("Draft Deleted");
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteDraftAsync(id)).unwrap();
+      toast.success("Draft Deleted");
+    } catch (error) {
+      toast.error(error || "Failed to delete draft");
+    }
   };
 
   const handleEdit = (draft) => {
@@ -49,10 +60,10 @@ function Drafts() {
       <h1>Drafts</h1>
 
       <p className="subtitle">
-        Manage all saved drafts
+        {query ? `Results for “${searchParams.get("q")}”` : "Manage all saved drafts"}
       </p>
 
-      {drafts.length === 0 ? (
+      {visibleDrafts.length === 0 ? (
         <div
           className="glass"
           style={{
@@ -61,14 +72,14 @@ function Drafts() {
             textAlign: "center",
           }}
         >
-          <h2>No Drafts Found</h2>
+          <h2>{query ? "No matching drafts" : "No Drafts Found"}</h2>
 
-          <p style={{ color: "#94a3b8" }}>
-            Save a draft from Composer to see it here.
+          <p className="draftEmptyText">
+            {query ? "Try a different search term or create a new draft." : "Save a draft from Composer to see it here."}
           </p>
         </div>
       ) : (
-        drafts.map((draft) => (
+        visibleDrafts.map((draft) => (
           <motion.div
             key={draft.id}
             className="glass"

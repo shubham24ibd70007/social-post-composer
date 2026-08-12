@@ -91,7 +91,7 @@ function Sidebar() {
           ))}
       </div>
 
-      <div className="storage glass">
+      <NavLink to="/storage" className="storage glass" aria-label="View storage details">
         <h4>Storage</h4>
 
         <div className="progress">
@@ -101,7 +101,7 @@ function Sidebar() {
         <small>
           2.4 GB of 10 GB Used
         </small>
-      </div>
+      </NavLink>
     </motion.div>
   );
 }

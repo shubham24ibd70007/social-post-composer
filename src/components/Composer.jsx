@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   FiImage,
@@ -15,7 +15,7 @@ import {
   updatePost,
   saveDraftAsync,
   publishPost,
-  updateDraft,
+  updateDraftAsync,
   clearPost,
 } from "../redux/slices/postSlice";
 
@@ -43,6 +43,11 @@ function Composer() {
   );
 
   const fileRef = useRef();
+  const attachmentRef = useRef();
+  const scheduleRef = useRef();
+  const textRef = useRef();
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [attachments, setAttachments] = useState([]);
 
   // Memoized Values
   const remaining = useMemo(() => {
@@ -97,6 +102,48 @@ function Composer() {
     );
   }
 
+  function addEmoji(emoji) {
+    const textarea = textRef.current;
+    const start = textarea?.selectionStart ?? currentPost.text.length;
+    const end = textarea?.selectionEnd ?? start;
+    const text = `${currentPost.text.slice(0, start)}${emoji}${currentPost.text.slice(end)}`;
+
+    dispatch(updatePost({ text }));
+    setShowEmojiPicker(false);
+
+    requestAnimationFrame(() => {
+      textarea?.focus();
+      textarea?.setSelectionRange(start + emoji.length, start + emoji.length);
+    });
+  }
+
+  function addAttachments(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    setAttachments((currentAttachments) => [
+      ...currentAttachments,
+      ...files.map((file) => ({
+        id: `${file.name}-${file.size}-${file.lastModified}`,
+        name: file.name,
+      })),
+    ]);
+    e.target.value = "";
+    toast.success(`${files.length} attachment${files.length === 1 ? "" : "s"} added`);
+  }
+
+  function openSchedulePicker() {
+    const scheduleInput = scheduleRef.current;
+    if (!scheduleInput) return;
+
+    scheduleInput.focus();
+
+    // showPicker is supported by modern browsers; focusing still works as a fallback.
+    if (typeof scheduleInput.showPicker === "function") {
+      scheduleInput.showPicker();
+    }
+  }
+
   async function draft() {
     if (
       !currentPost.text.trim() &&
@@ -108,18 +155,10 @@ function Composer() {
 
     try {
       if (currentPost.id) {
-        dispatch(
-          updateDraft({
-            id: currentPost.id,
-            changes: {
-              platform,
-              text: currentPost.text,
-              image: currentPost.image,
-              schedule: currentPost.schedule,
-              createdAt: new Date().toLocaleString(),
-            },
-          })
-        );
+        await dispatch(updateDraftAsync({
+          id: currentPost.id,
+          post: { ...currentPost, platform },
+        })).unwrap();
 
         dispatch(clearPost());
 
@@ -186,6 +225,7 @@ function Composer() {
       </div>
 
       <textarea
+        ref={textRef}
         value={currentPost.text}
         placeholder="Share something amazing today..."
         onChange={handleText}
@@ -203,6 +243,10 @@ function Composer() {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
+          type="button"
+          aria-label="Add emoji"
+          aria-expanded={showEmojiPicker}
+          onClick={() => setShowEmojiPicker((isOpen) => !isOpen)}
         >
           <FiSmile />
         </motion.button>
@@ -210,6 +254,9 @@ function Composer() {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
+          type="button"
+          aria-label="Add attachments"
+          onClick={() => attachmentRef.current?.click()}
         >
           <FiPaperclip />
         </motion.button>
@@ -217,6 +264,9 @@ function Composer() {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
+          type="button"
+          aria-label="Choose schedule date and time"
+          onClick={openSchedulePicker}
         >
           <FiCalendar />
         </motion.button>
@@ -255,6 +305,37 @@ function Composer() {
         onChange={uploadImage}
       />
 
+      <input
+        ref={attachmentRef}
+        hidden
+        type="file"
+        multiple
+        onChange={addAttachments}
+      />
+
+      {showEmojiPicker && (
+        <div className="emojiPicker" role="group" aria-label="Emoji picker">
+          {["😀", "🎉", "❤️", "🔥", "👍", "✨", "🚀", "💡"].map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              aria-label={`Add ${emoji}`}
+              onClick={() => addEmoji(emoji)}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {attachments.length > 0 && (
+        <div className="attachments" aria-label="Selected attachments">
+          {attachments.map((attachment) => (
+            <span key={attachment.id}>{attachment.name}</span>
+          ))}
+        </div>
+      )}
+
       {currentPost.image && (
         <div className="previewImage">
           <img
@@ -265,6 +346,7 @@ function Composer() {
       )}
 
       <input
+        ref={scheduleRef}
         className="schedule"
         type="datetime-local"
         value={currentPost.schedule}

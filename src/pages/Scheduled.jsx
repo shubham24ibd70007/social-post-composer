@@ -15,7 +15,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import {
   draftsSelectors,
-  updateDraft,
+  updateDraftAsync,
 } from "../redux/slices/postSlice";
 
 function Scheduled() {
@@ -83,20 +83,18 @@ function Scheduled() {
       const newSchedule =
         info.event.start.toISOString();
 
-      dispatch(
-        updateDraft({
-          id,
-          changes: {
-            schedule: newSchedule,
-          },
-        })
-      );
+      const post = drafts.find((draft) => draft.id === id);
+      if (!post) return;
 
-      toast.success(
-        "Schedule Updated"
-      );
+      dispatch(updateDraftAsync({
+        id,
+        post: { ...post, schedule: newSchedule },
+      }))
+        .unwrap()
+        .then(() => toast.success("Schedule Updated"))
+        .catch(() => toast.error("Failed to update schedule"));
     },
-    [dispatch]
+    [dispatch, drafts]
   );
 
   return (

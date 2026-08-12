@@ -1,0 +1,22 @@
+.storagePage { min-height: 640px; padding: 34px; border-radius: 28px; }
+.storageBack { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 25px; color: #aaaabd; font-size: .82rem; }
+.storageBack:hover { color: #fff; }
+.storagePage h1 { color: #f8f8fb; font-size: clamp(2rem, 3.4vw, 2.8rem); }
+.storageSummary { display: flex; align-items: center; gap: 42px; margin: 32px 0; padding: 28px; border: 1px solid rgba(255,255,255,.08); border-radius: 24px; background: rgba(255,255,255,.035); }
+.storageRing { width: 180px; height: 180px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(#8d8eff 0deg 53.28deg, #55d6be 53.28deg 75.744deg, #ffad66 75.744deg 83.7deg, #ee82ca 83.7deg var(--used), rgba(255,255,255,.09) var(--used) 360deg); }
+.storageRingCenter { width: 139px; height: 139px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; background: #1d1d27; }
+.storageRingCenter strong { color: #fff; font-size: 1.55rem; letter-spacing: -.06em; }
+.storageRingCenter span { margin-top: 4px; color: #9595a3; font-size: .69rem; }
+.storageSummaryText { max-width: 400px; }
+.storageAvailable { color: #65d9c4; font-size: .8rem; font-weight: 700; }
+.storageSummaryText h2, .storageBreakdown h2 { margin: 7px 0; color: #f4f4f7; font-size: 1.18rem; }
+.storageSummaryText p { color: #9999a6; font-size: .87rem; line-height: 1.6; }
+.storageBreakdown { max-width: 700px; }
+.storageItem { display: flex; align-items: center; gap: 13px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,.075); }
+.storageItemIcon { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 12px; font-size: 1.05rem; }
+.storageItemDetails { flex: 1; min-width: 0; }
+.storageItemDetails > div:first-child { display: flex; justify-content: space-between; gap: 10px; color: #eeeeF4; font-size: .87rem; }
+.storageItemDetails > div:first-child span { color: #9e9eab; white-space: nowrap; font-size: .78rem; }
+.storageItemTrack { height: 6px; margin-top: 9px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.08); }
+.storageItemTrack div { height: 100%; border-radius: inherit; }
+@media (max-width: 560px) { .storagePage { padding: 25px 19px; } .storageSummary { align-items: flex-start; flex-direction: column; gap: 22px; padding: 22px; } .storageRing { width: 154px; height: 154px; } .storageRingCenter { width: 118px; height: 118px; } }
